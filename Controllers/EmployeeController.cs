@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using EmployeesCh12.Data;
 using EmployeesCh12.Models;
+using EmployeesCh12.ViewModel;
 
 namespace EmployeesCh12.Controllers
 {
@@ -62,6 +63,19 @@ namespace EmployeesCh12.Controllers
             }
             int pageSize = 3;
             return View(await PaginatedList<Employee>.CreateAsync(employees.AsNoTracking(), pageNumber ?? 1, pageSize));
+        }
+
+        public IActionResult DeptCount()
+        {
+            IQueryable<DepartmentGroup> data =
+                 from employee in _context.Employees.Include(e => e.Department)
+                 group employee by employee.DepartmentID into deptGroup
+                 select new DepartmentGroup()
+                 {
+                     DepartmentID = deptGroup.Key,
+                     DepartmentCount = deptGroup.Count()
+                 };
+            return View(data.ToList());
         }
 
         // GET: Employee/Details/5
